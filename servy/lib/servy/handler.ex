@@ -22,6 +22,14 @@ defmodule Servy.Handler do
     |> format_response
   end
 
+  def route(%Conv{ method: "POST", path: "/pledges"} = conv) do
+    Servy.PledgeController.create(conv, conv.params)
+  end
+
+  def route(%Conv{ method: "GET", path: "/pledges"} = conv) do
+    Servy.PledgeController.index(conv)
+  end
+
   def route(%Conv{ method: "GET", path: "/sensors"} = conv) do
     task = Task.async(Servy.Tracker, :get_location, ["bigfoot"])
     snapshots =
@@ -43,6 +51,7 @@ defmodule Servy.Handler do
 
     %{ conv | status: 200, resp_body: "Awake!" }
   end
+
   def route(%Conv{ method: "GET", path: "/wildthings"} = conv) do
     %{ conv | status: 200, resp_body: "Bears, Lions, Tigers"}
   end
@@ -54,6 +63,7 @@ defmodule Servy.Handler do
   def route(%Conv{ method: "GET", path: "/bears"} = conv) do
     BearController.index(conv)
   end
+
 
   def route(%Conv{ method: "GET", path: "/bears/" <> id } = conv) do
     params = Map.put(conv.params, "id", id)
