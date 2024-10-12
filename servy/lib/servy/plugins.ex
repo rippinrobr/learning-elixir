@@ -9,7 +9,7 @@ defmodule Servy.Plugins do
     conv
   end
 
-  def track(%Conv{} = conv), do: conv
+  def (%Conv{} = conv), do: conv
 
   def rewrite_path(%Conv{path: "/wildlife", } = conv) do
     %{ conv | path: "/wildthings" }
