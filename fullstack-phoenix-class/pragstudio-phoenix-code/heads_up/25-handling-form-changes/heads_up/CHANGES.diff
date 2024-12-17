@@ -1,0 +1,41 @@
+--- a/lib/heads_up/incidents.ex
++++ b/lib/heads_up/incidents.ex
+@@ -7,10 +7,10 @@ defmodule HeadsUp.Incidents do
+     Repo.all(Incident)
+   end
+ 
+-  def filter_incidents do
++  def filter_incidents(filter) do
+     Incident
+-    |> where(status: :resolved)
+-    |> where([i], ilike(i.name, "%in%"))
++    |> where(status: ^filter["status"])
++    |> where([i], ilike(i.name, ^"%#{filter["q"]}%"))
+     |> order_by(desc: :name)
+     |> Repo.all()
+   end
+--- a/lib/heads_up_web/live/incident_live/index.ex
++++ b/lib/heads_up_web/live/incident_live/index.ex
+@@ -39,7 +39,7 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+ 
+   def filter_form(assigns) do
+     ~H"""
+-    <.form for={@form} id="filter-form">
++    <.form for={@form} id="filter-form" phx-change="filter" phx-submit="filter">
+       <.input field={@form[:q]} placeholder="Search..." autocomplete="off" />
+       <.input
+         type="select"
+@@ -71,4 +71,13 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+     </.link>
+     """
+   end
++
++  def handle_event("filter", params, socket) do
++    socket =
++      socket
++      |> assign(:form, to_form(params))
++      |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
++
++    {:noreply, socket}
++  end
+ end

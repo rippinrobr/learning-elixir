@@ -1,0 +1,52 @@
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/live/effort_live.ex
+@@ -0,0 +1,29 @@
++defmodule HeadsUpWeb.EffortLive do
++  use HeadsUpWeb, :live_view
++
++  def mount(_params, _session, socket) do
++    socket = assign(socket, responders: 0, minutes_per_responder: 10)
++    {:ok, socket}
++  end
++
++  def render(assigns) do
++    ~H"""
++    <div class="effort">
++      <h1>Community Love</h1>
++      <section>
++        <div>
++          <%= @responders %>
++        </div>
++        &times;
++        <div>
++          <%= @minutes_per_responder %>
++        </div>
++        =
++        <div>
++          <%= @responders * @minutes_per_responder %>
++        </div>
++      </section>
++    </div>
++    """
++  end
++end
+--- a/lib/heads_up_web/router.ex
++++ b/lib/heads_up_web/router.ex
+@@ -20,7 +20,7 @@ defmodule HeadsUpWeb.Router do
+ 
+     conn = assign(conn, :answer, answer)
+ 
+-    IO.inspect(conn)
++    # IO.inspect(conn)
+ 
+     conn
+   end
+@@ -31,6 +31,7 @@ defmodule HeadsUpWeb.Router do
+     get "/", PageController, :home
+     get "/tips", TipController, :index
+     get "/tips/:id", TipController, :show
++    live "/effort", EffortLive
+   end
+ 
+   # Other scopes may use custom stacks.

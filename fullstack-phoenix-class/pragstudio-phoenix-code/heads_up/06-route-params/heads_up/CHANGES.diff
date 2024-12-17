@@ -1,0 +1,71 @@
+--- a/lib/heads_up/tips.ex
++++ b/lib/heads_up/tips.ex
+@@ -15,4 +15,12 @@ defmodule HeadsUp.Tips do
+       }
+     ]
+   end
++
++  def get_tip(id) when is_integer(id) do
++    Enum.find(list_tips(), fn t -> t.id == id end)
++  end
++
++  def get_tip(id) when is_binary(id) do
++    id |> String.to_integer() |> get_tip()
++  end
+ end
+--- a/lib/heads_up_web/controllers/tip_controller.ex
++++ b/lib/heads_up_web/controllers/tip_controller.ex
+@@ -10,4 +10,10 @@ defmodule HeadsUpWeb.TipController do
+ 
+     render(conn, :index, emojis: emojis, tips: tips)
+   end
++
++  def show(conn, %{"id" => id}) do
++    tip = Tips.get_tip(id)
++
++    render(conn, :show, tip: tip)
++  end
+ end
+--- a/lib/heads_up_web/controllers/tip_html.ex
++++ b/lib/heads_up_web/controllers/tip_html.ex
+@@ -2,4 +2,15 @@ defmodule HeadsUpWeb.TipHTML do
+   use HeadsUpWeb, :html
+ 
+   embed_templates "tip_html/*"
++
++  def show(assigns) do
++    ~H"""
++    <div class="tips">
++      <h1>You Like a Tip, <%= @answer %>?</h1>
++      <p>
++        <%= @tip.text %>
++      </p>
++    </div>
++    """
++  end
+ end
+--- a/lib/heads_up_web/controllers/tip_html/index.html.heex
++++ b/lib/heads_up_web/controllers/tip_html/index.html.heex
+@@ -2,7 +2,11 @@
+   <h1>Safety Tips</h1>
+   <ol>
+     <%= for tip <- @tips do %>
+-      <li><%= tip.text %></li>
++      <li>
++        <a href={~p"/tips/#{tip.id}"}>
++          <%= tip.text %>
++        </a>
++      </li>
+     <% end %>
+   </ol>
+   <p>
+--- a/lib/heads_up_web/router.ex
++++ b/lib/heads_up_web/router.ex
+@@ -30,6 +30,7 @@ defmodule HeadsUpWeb.Router do
+ 
+     get "/", PageController, :home
+     get "/tips", TipController, :index
++    get "/tips/:id", TipController, :show
+   end
+ 
+   # Other scopes may use custom stacks.

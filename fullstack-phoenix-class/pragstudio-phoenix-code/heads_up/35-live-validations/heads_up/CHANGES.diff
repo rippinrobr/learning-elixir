@@ -1,0 +1,50 @@
+--- a/lib/heads_up/admin.ex
++++ b/lib/heads_up/admin.ex
+@@ -14,4 +14,8 @@ defmodule HeadsUp.Admin do
+     |> Incident.changeset(attrs)
+     |> Repo.insert()
+   end
++
++  def change_incident(%Incident{} = incident, attrs \\ %{}) do
++    Incident.changeset(incident, attrs)
++  end
+ end
+--- a/lib/heads_up_web/live/admin_incident_live/form.ex
++++ b/lib/heads_up_web/live/admin_incident_live/form.ex
+@@ -5,7 +5,7 @@ defmodule HeadsUpWeb.AdminIncidentLive.Form do
+   alias HeadsUp.Incidents.Incident
+ 
+   def mount(_params, _session, socket) do
+-    changeset = Incident.changeset(%Incident{}, %{})
++    changeset = Admin.change_incident(%Incident{})
+ 
+     socket =
+       socket
+@@ -20,10 +20,10 @@ defmodule HeadsUpWeb.AdminIncidentLive.Form do
+     <.header>
+       <%= @page_title %>
+     </.header>
+-    <.simple_form for={@form} id="incident-form" phx-submit="save">
++    <.simple_form for={@form} id="incident-form" phx-submit="save" phx-change="validate">
+       <.input field={@form[:name]} label="Name" />
+ 
+-      <.input field={@form[:description]} type="textarea" label="Description" />
++      <.input field={@form[:description]} type="textarea" label="Description" phx-debounce="blur" />
+ 
+       <.input field={@form[:priority]} type="number" label="Priority" />
+ 
+@@ -46,6 +46,14 @@ defmodule HeadsUpWeb.AdminIncidentLive.Form do
+     """
+   end
+ 
++  def handle_event("validate", %{"incident" => incident_params}, socket) do
++    changeset = Admin.change_incident(%Incident{}, incident_params)
++
++    socket = assign(socket, :form, to_form(changeset, action: :validate))
++
++    {:noreply, socket}
++  end
++
+   def handle_event("save", %{"incident" => incident_params}, socket) do
+     case Admin.create_incident(incident_params) do
+       {:ok, _incident} ->

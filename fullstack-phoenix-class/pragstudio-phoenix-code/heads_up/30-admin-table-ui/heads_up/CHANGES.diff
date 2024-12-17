@@ -1,0 +1,100 @@
+--- a/.iex.exs
++++ b/.iex.exs
+@@ -1,3 +1,4 @@
+ alias HeadsUp.Repo
+ alias HeadsUp.Incidents
+ alias HeadsUp.Incidents.Incident
++alias HeadsUp.Admin
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up/admin.ex
+@@ -0,0 +1,11 @@
++defmodule HeadsUp.Admin do
++  alias HeadsUp.Incidents.Incident
++  alias HeadsUp.Repo
++  import Ecto.Query
++
++  def list_incidents do
++    Incident
++    |> order_by(desc: :inserted_at)
++    |> Repo.all()
++  end
++end
+--- a/lib/heads_up/incidents.ex
++++ b/lib/heads_up/incidents.ex
+@@ -49,7 +49,7 @@ defmodule HeadsUp.Incidents do
+   end
+ 
+   def urgent_incidents(incident) do
+-    Process.sleep(2000)
++    # Process.sleep(2000)
+ 
+     Incident
+     |> where(status: :pending)
+--- a/lib/heads_up_web/components/layouts/app.html.heex
++++ b/lib/heads_up_web/components/layouts/app.html.heex
+@@ -12,6 +12,9 @@
+       <.link navigate={~p"/effort"}>
+         Effort
+       </.link>
++      <.link navigate={~p"/admin/incidents"}>
++        Admin
++      </.link>
+     </div>
+   </div>
+ </header>
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/live/admin_incident_live/index.ex
+@@ -0,0 +1,40 @@
++defmodule HeadsUpWeb.AdminIncidentLive.Index do
++  use HeadsUpWeb, :live_view
++
++  alias HeadsUp.Admin
++  import HeadsUpWeb.CustomComponents
++
++  def mount(_params, _session, socket) do
++    socket =
++      socket
++      |> assign(:page_title, "Listing Incidents")
++      |> stream(:incidents, Admin.list_incidents())
++
++    {:ok, socket}
++  end
++
++  def render(assigns) do
++    ~H"""
++    <div class="admin-index">
++      <.header>
++        <%= @page_title %>
++      </.header>
++      <.table id="incidents" rows={@streams.incidents}>
++        <:col :let={{_dom_id, incident}} label="Name">
++          <.link navigate={~p"/incidents/#{incident}"}>
++            <%= incident.name %>
++          </.link>
++        </:col>
++
++        <:col :let={{_dom_id, incident}} label="Status">
++          <.badge status={incident.status} />
++        </:col>
++
++        <:col :let={{_dom_id, incident}} label="Priority">
++          <%= incident.priority %>
++        </:col>
++      </.table>
++    </div>
++    """
++  end
++end
+--- a/lib/heads_up_web/router.ex
++++ b/lib/heads_up_web/router.ex
+@@ -36,6 +36,8 @@ defmodule HeadsUpWeb.Router do
+     live "/effort", EffortLive
+     live "/incidents", IncidentLive.Index
+     live "/incidents/:id", IncidentLive.Show
++
++    live "/admin/incidents", AdminIncidentLive.Index
+   end
+ 
+   # Other scopes may use custom stacks.

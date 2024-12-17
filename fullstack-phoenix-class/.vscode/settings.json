@@ -1,0 +1,7 @@
+{
+    "elixirLS.suggestSpecs": false,
+    "elixirLS.signatureAfterComplete": false,
+    "files.associations": {
+        "*.heex": "phoenix-heex"
+    }
+}

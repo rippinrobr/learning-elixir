@@ -1,0 +1,73 @@
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up/tips.ex
+@@ -0,0 +1,18 @@
++defmodule HeadsUp.Tips do
++  def list_tips do
++    [
++      %{
++        id: 1,
++        text: "Slow is smooth, and smooth is fast! 🐢"
++      },
++      %{
++        id: 2,
++        text: "Working with a buddy is always a smart move. 👯‍♂️"
++      },
++      %{
++        id: 3,
++        text: "Take it easy and enjoy! 😊"
++      }
++    ]
++  end
++end
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/controllers/tip_controller.ex
+@@ -0,0 +1,13 @@
++defmodule HeadsUpWeb.TipController do
++  use HeadsUpWeb, :controller
++
++  alias HeadsUp.Tips
++
++  def index(conn, _params) do
++    emojis = ~w(💚 💜 💙) |> Enum.random() |> String.duplicate(5)
++
++    tips = Tips.list_tips()
++
++    render(conn, :index, emojis: emojis, tips: tips)
++  end
++end
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/controllers/tip_html.ex
+@@ -0,0 +1,5 @@
++defmodule HeadsUpWeb.TipHTML do
++  use HeadsUpWeb, :html
++
++  embed_templates "tip_html/*"
++end
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/controllers/tip_html/index.html.heex
+@@ -0,0 +1,11 @@
++<div class="tips">
++  <h1>Safety Tips</h1>
++  <ol>
++    <%= for tip <- @tips do %>
++      <li><%= tip.text %></li>
++    <% end %>
++  </ol>
++  <p>
++    <%= @emojis %>
++  </p>
++</div>
+--- a/lib/heads_up_web/router.ex
++++ b/lib/heads_up_web/router.ex
+@@ -29,6 +29,7 @@ defmodule HeadsUpWeb.Router do
+     pipe_through :browser
+ 
+     get "/", PageController, :home
++    get "/tips", TipController, :index
+   end
+ 
+   # Other scopes may use custom stacks.

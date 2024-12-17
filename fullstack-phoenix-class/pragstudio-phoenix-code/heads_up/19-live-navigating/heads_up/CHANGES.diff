@@ -1,0 +1,68 @@
+--- a/lib/heads_up_web/components/layouts/app.html.heex
++++ b/lib/heads_up_web/components/layouts/app.html.heex
+@@ -5,7 +5,14 @@
+         <img src={~p"/images/heads-up-logo.png"} width="175" />
+       </a>
+     </div>
+-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900"></div>
++    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
++      <.link navigate={~p"/incidents"}>
++        Incidents
++      </.link>
++      <.link navigate={~p"/effort"}>
++        Effort
++      </.link>
++    </div>
+   </div>
+ </header>
+ <main class="px-4 py-12 sm:px-6 lg:px-8">
+--- a/lib/heads_up_web/live/incident_live/index.ex
++++ b/lib/heads_up_web/live/incident_live/index.ex
+@@ -34,16 +34,18 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+ 
+   def incident_card(assigns) do
+     ~H"""
+-    <div class="card">
+-      <img src={@incident.image_path} />
+-      <h2><%= @incident.name %></h2>
+-      <div class="details">
+-        <.badge status={@incident.status} />
+-        <div class="priority">
+-          <%= @incident.priority %>
++    <.link navigate={~p"/incidents/#{@incident}"}>
++      <div class="card">
++        <img src={@incident.image_path} />
++        <h2><%= @incident.name %></h2>
++        <div class="details">
++          <.badge status={@incident.status} />
++          <div class="priority">
++            <%= @incident.priority %>
++          </div>
+         </div>
+       </div>
+-    </div>
++    </.link>
+     """
+   end
+ end
+--- a/lib/heads_up_web/live/incident_live/show.ex
++++ b/lib/heads_up_web/live/incident_live/show.ex
+@@ -44,6 +44,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
+           <.urgent_incidents incidents={@urgent_incidents} />
+         </div>
+       </div>
++      <.back navigate={~p"/incidents"}>All Incidents</.back>
+     </div>
+     """
+   end
+@@ -54,7 +55,9 @@ defmodule HeadsUpWeb.IncidentLive.Show do
+       <h4>Urgent Incidents</h4>
+       <ul class="incidents">
+         <li :for={incident <- @incidents}>
+-          <img src={incident.image_path} /> <%= incident.name %>
++          <.link navigate={~p"/incidents/#{incident}"}>
++            <img src={incident.image_path} /> <%= incident.name %>
++          </.link>
+         </li>
+       </ul>
+     </section>

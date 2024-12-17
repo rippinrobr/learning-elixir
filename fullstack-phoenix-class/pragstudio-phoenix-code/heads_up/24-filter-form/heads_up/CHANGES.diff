@@ -1,0 +1,44 @@
+--- a/lib/heads_up_web/live/incident_live/index.ex
++++ b/lib/heads_up_web/live/incident_live/index.ex
+@@ -8,7 +8,8 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+     socket =
+       socket
+       |> assign(:page_title, "Incidents")
+-      |> stream(:incidents, Incidents.filter_incidents())
++      |> assign(:form, to_form(%{}))
++      |> stream(:incidents, Incidents.list_incidents())
+ 
+     {:ok, socket}
+   end
+@@ -22,6 +23,9 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+           Thanks for pitching in. <%= vibe %>
+         </:tagline>
+       </.headline>
++
++      <.filter_form form={@form} />
++
+       <div class="incidents" id="incidents" phx-update="stream">
+         <.incident_card
+           :for={{dom_id, incident} <- @streams.incidents}
+@@ -33,6 +37,21 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+     """
+   end
+ 
++  def filter_form(assigns) do
++    ~H"""
++    <.form for={@form} id="filter-form">
++      <.input field={@form[:q]} placeholder="Search..." autocomplete="off" />
++      <.input
++        type="select"
++        field={@form[:status]}
++        prompt="Status"
++        options={[:pending, :resolved, :canceled]}
++      />
++      <.input type="select" field={@form[:sort_by]} prompt="Sort By" options={[:name, :priority]} />
++    </.form>
++    """
++  end
++
+   attr :incident, HeadsUp.Incidents.Incident, required: true
+   attr :id, :string, required: true
+ 

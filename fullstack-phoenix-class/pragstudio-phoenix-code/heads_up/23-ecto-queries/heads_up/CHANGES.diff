@@ -1,0 +1,118 @@
+--- a/lib/heads_up/incidents.ex
++++ b/lib/heads_up/incidents.ex
+@@ -1,16 +1,30 @@
+ defmodule HeadsUp.Incidents do
+   alias HeadsUp.Incidents.Incident
+   alias HeadsUp.Repo
++  import Ecto.Query
+ 
+   def list_incidents do
+     Repo.all(Incident)
+   end
+ 
++  def filter_incidents do
++    Incident
++    |> where(status: :resolved)
++    |> where([i], ilike(i.name, "%in%"))
++    |> order_by(desc: :name)
++    |> Repo.all()
++  end
++
+   def get_incident!(id) do
+     Repo.get!(Incident, id)
+   end
+ 
+   def urgent_incidents(incident) do
+-    list_incidents() |> List.delete(incident)
++    Incident
++    |> where(status: :pending)
++    |> where([i], i.id != ^incident.id)
++    |> order_by(asc: :priority)
++    |> limit(3)
++    |> Repo.all()
+   end
+ end
+--- a/lib/heads_up_web/live/incident_live/index.ex
++++ b/lib/heads_up_web/live/incident_live/index.ex
+@@ -8,16 +8,7 @@ defmodule HeadsUpWeb.IncidentLive.Index do
+     socket =
+       socket
+       |> assign(:page_title, "Incidents")
+-      |> stream(:incidents, Incidents.list_incidents())
+-
+-    IO.inspect(socket.assigns.streams.incidents, label: "mount")
+-
+-    socket =
+-      attach_hook(socket, :log_stream, :after_render, fn
+-        socket ->
+-          IO.inspect(socket.assigns.streams.incidents, label: "AFTER RENDER")
+-          socket
+-      end)
++      |> stream(:incidents, Incidents.filter_incidents())
+ 
+     {:ok, socket}
+   end
+new file mode 100644
+--- /dev/null
++++ b/priv/repo/query-playground.exs
+@@ -0,0 +1,60 @@
++import Ecto.Query
++
++alias HeadsUp.Repo
++alias HeadsUp.Incidents.Incident
++
++# all the pending incidents, ordered by descending priority
++
++query =
++  from(Incident,
++    where: [status: :pending],
++    order_by: [desc: :priority]
++  )
++
++Repo.all(query) |> IO.inspect()
++
++query =
++  Incident
++  |> where(status: :pending)
++  |> order_by(desc: :priority)
++
++Repo.all(query) |> IO.inspect()
++
++# incidents with a priority greater than or equal to 2,
++# ordered by ascending name
++
++query =
++  from(i in Incident,
++    where: i.priority >= 2,
++    order_by: :name
++  )
++
++Repo.all(query) |> IO.inspect()
++
++query =
++  Incident
++  |> where([i], i.priority >= 2)
++  |> order_by(:name)
++
++Repo.all(query) |> IO.inspect()
++
++# incidents that have "meow" anywhere in the description
++
++query =
++  from(i in Incident,
++    where: ilike(i.description, "%meow%")
++  )
++
++Repo.all(query) |> IO.inspect()
++
++query =
++  Incident
++  |> where([i], ilike(i.description, "%meow%"))
++
++Repo.all(query) |> IO.inspect()
++
++# the first and last incidentsn
++
++Incident |> first(:id) |> Repo.one() |> IO.inspect()
++
++Incident |> last(:id) |> Repo.one() |> IO.inspect()

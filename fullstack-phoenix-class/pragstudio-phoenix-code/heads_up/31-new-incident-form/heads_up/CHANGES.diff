@@ -1,0 +1,71 @@
+new file mode 100644
+--- /dev/null
++++ b/lib/heads_up_web/live/admin_incident_live/form.ex
+@@ -0,0 +1,43 @@
++defmodule HeadsUpWeb.AdminIncidentLive.Form do
++  use HeadsUpWeb, :live_view
++
++  def mount(_params, _session, socket) do
++    socket =
++      socket
++      |> assign(:page_title, "New Incident")
++      |> assign(:form, to_form(%{}, as: "incident"))
++
++    {:ok, socket}
++  end
++
++  def render(assigns) do
++    ~H"""
++    <.header>
++      <%= @page_title %>
++    </.header>
++    <.simple_form for={@form} id="incident-form">
++      <.input field={@form[:name]} label="Name" />
++
++      <.input field={@form[:description]} type="textarea" label="Description" />
++
++      <.input field={@form[:priority]} type="number" label="Priority" />
++
++      <.input
++        field={@form[:status]}
++        type="select"
++        label="Status"
++        prompt="Choose a status"
++        options={[:pending, :resolved, :canceled]}
++      />
++
++      <.input field={@form[:image_path]} label="Image Path" />
++
++      <:actions>
++        <.button>Save Incident</.button>
++      </:actions>
++    </.simple_form>
++
++    <.back navigate={~p"/admin/incidents"}>Back</.back>
++    """
++  end
++end
+--- a/lib/heads_up_web/live/admin_incident_live/index.ex
++++ b/lib/heads_up_web/live/admin_incident_live/index.ex
+@@ -18,6 +18,11 @@ defmodule HeadsUpWeb.AdminIncidentLive.Index do
+     <div class="admin-index">
+       <.header>
+         <%= @page_title %>
++        <:actions>
++          <.link navigate={~p"/admin/incidents/new"} class="button">
++            New Incident
++          </.link>
++        </:actions>
+       </.header>
+       <.table id="incidents" rows={@streams.incidents}>
+         <:col :let={{_dom_id, incident}} label="Name">
+--- a/lib/heads_up_web/router.ex
++++ b/lib/heads_up_web/router.ex
+@@ -38,6 +38,7 @@ defmodule HeadsUpWeb.Router do
+     live "/incidents/:id", IncidentLive.Show
+ 
+     live "/admin/incidents", AdminIncidentLive.Index
++    live "/admin/incidents/new", AdminIncidentLive.Form
+   end
+ 
+   # Other scopes may use custom stacks.
