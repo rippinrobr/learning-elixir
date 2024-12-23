@@ -15,6 +15,7 @@ config :heads_up,
 config :heads_up, HeadsUpWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
+  http: [port: System.get_env("HEADS_UP_PORT") || 4001],
   render_errors: [
     formats: [html: HeadsUpWeb.ErrorHTML, json: HeadsUpWeb.ErrorJSON],
     layout: false
