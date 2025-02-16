@@ -13,7 +13,7 @@ defmodule Raffley.Raffles do
         image_path: "/images/jersey.jpg",
         description: "Step up, sports fans!"
       },
-      %{
+      %Raffley.Raffle{
         id: 2,
         prize: "Coffee With A Yeti",
         ticket_price: 3,
@@ -21,7 +21,7 @@ defmodule Raffley.Raffles do
         image_path: "/images/yeti-coffee.jpg",
         description: "A super-chill coffee date."
       },
-      %{
+      %Raffley.Raffle{
         id: 3,
         prize: "Vintage Comic Book",
         ticket_price: 1,
