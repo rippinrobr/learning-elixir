@@ -2,17 +2,17 @@ defmodule HeadsUpWeb.Router do
   use HeadsUpWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, html: {HeadsUpWeb.Layouts, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug :snoop
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, html: {HeadsUpWeb.Layouts, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
+    plug(:snoop)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   def snoop(conn, _opts) do
@@ -24,17 +24,19 @@ defmodule HeadsUpWeb.Router do
   end
 
   scope "/", HeadsUpWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    get "/", PageController, :home
-    get "/tips", TipController, :index
-    get "/tips/:id", TipController, :show
-    live "/effort", EffortLive
+    get("/", PageController, :home)
+    get("/tips", TipController, :index)
+    get("/tips/:id", TipController, :show)
+
+    live("/effort", EffortLive)
+    live("/incidents", IncidentLive.Index)
   end
 
   # Other scopes may use custom stacks.
   scope "/api", HeadsUpWeb do
-    pipe_through :api
+    pipe_through(:api)
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
@@ -47,10 +49,10 @@ defmodule HeadsUpWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
-      pipe_through :browser
+      pipe_through(:browser)
 
-      live_dashboard "/dashboard", metrics: HeadsUpWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
+      live_dashboard("/dashboard", metrics: HeadsUpWeb.Telemetry)
+      forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end
 end
