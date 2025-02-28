@@ -6,7 +6,7 @@ defmodule HeadsUpWeb.EffortLive do
       # Process.send_after(self(), :tick, 2000)
     end
 
-    {:ok, assign(socket, responders: 3, minutes: 10, avg_response_time: 0)}
+    {:ok, assign(socket, responders: 3, minutes: 10, avg_response_time: 0, page_title: "Effort")}
   end
 
   def render(assigns) do
