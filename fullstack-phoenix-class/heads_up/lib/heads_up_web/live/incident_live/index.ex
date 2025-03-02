@@ -12,10 +12,9 @@ defmodule HeadsUpWeb.IncidentLive.Index do
     ~H"""
     <div class="incident-index">
       <.headline>
-        <.icon name="hero-trophy-mini" />
-        25 Incidents Resolved This Month!
+        <.icon name="hero-trophy-mini" /> 25 Incidents Resolved This Month!
         <:tagline :let={vibe}>
-          Thanks for pitching in. <%= vibe %>
+          Thanks for pitching in. {vibe}
         </:tagline>
       </.headline>
       <div class="incidents">
@@ -29,16 +28,18 @@ defmodule HeadsUpWeb.IncidentLive.Index do
 
   def incident_card(assigns) do
     ~H"""
-    <div class="card">
-      <img src={@incident.image_path} />
-      <h2>{@incident.name}</h2>
-      <div class="details">
-        <.badge status={@incident.status} />
-        <div class="priority">
-          {@incident.priority}
+    <.link navigate={~p"/incidents/#{@incident}"}>
+      <div class="card">
+        <img src={@incident.image_path} />
+        <h2>{@incident.name}</h2>
+        <div class="details">
+          <.badge status={@incident.status} />
+          <div class="priority">
+            {@incident.priority}
+          </div>
         </div>
       </div>
-    </div>
+    </.link>
     """
   end
 end

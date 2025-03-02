@@ -12,10 +12,10 @@ defmodule RaffleyWeb.RaffleLive.Index do
   def render(assigns) do
     ~H"""
     <div class="raffle-index">
-      <.banner :if={false} >
-        <.icon name="hero-sparkles-solid"/> Mystery Raffle Coming Soon!
+      <.banner :if={false}>
+        <.icon name="hero-sparkles-solid" /> Mystery Raffle Coming Soon!
         <:details :let={vibe}>
-          To Be Revealed Tommorow <%= vibe %>
+          To Be Revealed Tommorow {vibe}
         </:details>
         <:details>
           Any guesses?
@@ -28,24 +28,22 @@ defmodule RaffleyWeb.RaffleLive.Index do
     """
   end
 
-
-
   attr :raffle, Raffley.Raffle, required: true
 
   def raffle_card(assigns) do
     ~H"""
-    <div class="card">
-      <img src={@raffle.image_path} alt={@raffle.prize} />
-      <h2>{@raffle.prize}</h2>
-      <div class="details">
-        <div class="price">
-          ${@raffle.ticket_price}
+    <.link navigate={~p"/raffles/#{@raffle}"}>
+      <div class="card">
+        <img src={@raffle.image_path} alt={@raffle.prize} />
+        <h2>{@raffle.prize}</h2>
+        <div class="details">
+          <div class="price">
+            ${@raffle.ticket_price}
+          </div>
+          <.badge status={@raffle.status} />
         </div>
-        <.badge status={@raffle.status}/>
       </div>
-    </div>
+    </.link>
     """
   end
-
-
 end
